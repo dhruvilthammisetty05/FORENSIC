@@ -1,0 +1,12 @@
+{
+  "name": "blockchain-forensic",
+  "version": "1.0.0",
+  "description": "Smart contracts for forensic evidence management",
+  "main": "truffle-config.js",
+  "scripts": {
+    "test": "truffle test"
+  },
+  "dependencies": {
+    "truffle": "^5.11.5"
+  }
+}
