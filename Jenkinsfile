@@ -18,7 +18,7 @@ pipeline {
             steps {
                 dir('frontend') {
                     // Running under Node environment or simply invoking docker run if you have local Node
-                    sh 'npm install'
+                    bat 'npm install'
                     // Uncomment the below if you have linting setup:
                     // sh 'npm run lint'
                 }
@@ -28,7 +28,7 @@ pipeline {
         stage('Install Backend Dependencies & Lint') {
             steps {
                 dir('backend') {
-                    sh 'npm install'
+                    bat 'npm install'
                 }
             }
         }
@@ -36,9 +36,9 @@ pipeline {
         stage('Blockchain Smart Contracts') {
             steps {
                 dir('blockchain') {
-                    sh 'npm install'
+                    bat 'npm install'
                     // Compiling smart contracts
-                    sh 'npx truffle compile'
+                    bat 'npx truffle compile'
                 }
             }
         }
@@ -46,7 +46,7 @@ pipeline {
         stage('Build Docker Images') {
             steps {
                 // Testing docker build of the environment
-                sh 'docker compose build'
+                bat 'docker compose build'
             }
         }
 
@@ -54,8 +54,8 @@ pipeline {
             steps {
                 echo "Here you would typically run your tests, e.g. docker compose up -d, and run integration tests."
                 // Example: bringing down any previous state and bringing it up
-                // sh 'docker compose down'
-                // sh 'docker compose up -d'
+                // bat 'docker compose down'
+                // bat 'docker compose up -d'
                 
                 // For a true CI pipeline, you might just run particular test scripts here instead of a full deploy.
                 echo "Pipeline execution completed successfully!"
