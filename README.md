@@ -1,4 +1,4 @@
-# Blockchain-Based Digital Forensic Evidence Management System
+# FORENSIC (Capstone Project 1)
 
 An enterprise-grade, tamper-proof digital evidence management system utilizing Blockchain, IPFS, MERN stack, and Docker.
 
