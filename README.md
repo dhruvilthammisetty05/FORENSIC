@@ -46,7 +46,7 @@ An enterprise-grade, tamper-proof digital evidence management system utilizing B
    - IPFS Node (Ports 5001, 8080)
    - MongoDB (Port 27017)
    - Backend API (Port 5000)
-   - Frontend App (Port 3000)
+   - Frontend App (Port 3001)
 
 4. **Deploy Smart Contract (Initial Setup):**
    The backend container requires the contract ABI. First, let Ganache start.
