@@ -1,4 +1,4 @@
-# Secure Forensic Chain System
+# Digital Forensic Evidence management System
 
 An Enterprise-grade Digital Evidence Management Platform leveraging MERN, Ethereum Smart Contracts (Ganache), IPFS, and Dockerization.
 
@@ -25,7 +25,7 @@ The Frontend Dashboard will be exposed on `localhost:3001`!
 
 1. **Clone the repository:**
    ```bash
-   git clone <repo_url>
+   git clone <https://github.com/dhruvilthammisetty05/FORENSIC>
    cd forensic-chain-system
    ```
 
