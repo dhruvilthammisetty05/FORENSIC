@@ -20,9 +20,6 @@ app.use(cors({
 // Connect to MongoDB
 connectDB();
 
-// Initialize Web3
-initWeb3();
-
 // Routes
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/evidence', require('./routes/evidenceRoutes'));
@@ -43,4 +40,9 @@ app.use((err, req, res, next) => {
 });
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
+// Initialize Web3 and start server
+(async () => {
+    await initWeb3();
+    app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+})();

@@ -7,12 +7,39 @@ let contract;
 
 const initWeb3 = async () => {
     try {
-        web3 = new Web3(process.env.BLOCKCHAIN_URL || 'http://127.0.0.1:8545');
+        const blockchainUrl = process.env.BLOCKCHAIN_URL || 'http://127.0.0.1:8545';
+        const maxRetries = 30;
+        let retries = 0;
 
+        // Retry logic to wait for blockchain to be ready
+        while (retries < maxRetries) {
+            try {
+                web3 = new Web3(blockchainUrl);
+                const isConnected = await web3.eth.net.isListening();
+                
+                if (isConnected) {
+                    console.log('✅ Connected to blockchain at:', blockchainUrl);
+                    break;
+                }
+            } catch (error) {
+                retries++;
+                if (retries < maxRetries) {
+                    console.log(`⏳ Waiting for blockchain... (attempt ${retries}/${maxRetries})`);
+                    await new Promise(resolve => setTimeout(resolve, 2000));
+                }
+            }
+        }
+
+        if (retries >= maxRetries) {
+            console.error('❌ Failed to connect to blockchain after', maxRetries, 'attempts');
+            return { web3: null, contract: null };
+        }
+
+        // Load contract ABI
         const contractPath = path.resolve(process.cwd(), process.env.CONTRACT_ADDRESS_PATH || '../blockchain/build/contracts/EvidenceChain.json');
 
         if (!fs.existsSync(contractPath)) {
-            console.warn(`Contract ABI not found at ${contractPath}. Blockchain features will be disabled until deployed.`);
+            console.warn(`⚠️  Contract ABI not found at ${contractPath}. Please deploy contracts first.`);
             return { web3: null, contract: null };
         }
 
@@ -21,7 +48,8 @@ const initWeb3 = async () => {
         const deployedNetwork = contractJson.networks[networkId] || contractJson.networks['5777']; // fallback to default ganache Id
 
         if (!deployedNetwork) {
-            console.warn(`Contract not deployed to the current network ${networkId}`);
+            console.warn(`⚠️  Contract not deployed to the current network ${networkId}`);
+            console.log(`Available networks:`, Object.keys(contractJson.networks));
             return { web3, contract: null };
         }
 
@@ -30,10 +58,10 @@ const initWeb3 = async () => {
             deployedNetwork.address
         );
 
-        console.log('Web3 initialized and contract loaded at:', deployedNetwork.address);
+        console.log('✅ Web3 initialized and contract loaded at:', deployedNetwork.address);
         return { web3, contract };
     } catch (error) {
-        console.error('Failed to initialize Web3:', error.message);
+        console.error('❌ Failed to initialize Web3:', error.message);
         return { web3: null, contract: null };
     }
 };

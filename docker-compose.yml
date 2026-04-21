@@ -38,6 +38,24 @@ services:
     networks:
       - forensic-net
 
+  blockchain-deployer:
+    build:
+      context: ./blockchain
+      dockerfile: Dockerfile
+    environment:
+      - TRUFFLE_NETWORK=docker
+    volumes:
+      - ./blockchain:/app
+      - /app/node_modules
+      - ./blockchain/build:/app/build
+    depends_on:
+      - ganache
+    networks:
+      - forensic-net
+    command: sh -c "npm install && npx truffle compile && npx truffle migrate --network docker --reset"
+    profiles:
+      - deploy
+
   backend:
     build:
       context: ./backend
@@ -72,9 +90,17 @@ services:
       - ./frontend:/app
       - /app/node_modules
     environment:
-      - VITE_API_URL=http://localhost:5000/api
+      - VITE_API_URL=/api
     depends_on:
       - backend
+    networks:
+      - forensic-net
+
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    command: tunnel --url http://frontend:3000
+    depends_on:
+      - frontend
     networks:
       - forensic-net
 
