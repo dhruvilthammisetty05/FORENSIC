@@ -9,7 +9,8 @@ import {
     FileText,
     Settings,
     ChevronRight,
-    ChevronLeft
+    ChevronLeft,
+    Inbox
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
@@ -27,6 +28,7 @@ export default function Sidebar({ activeTab, setActiveTab }) {
         { id: 'verify', label: 'Verify Evidence', icon: ShieldCheck, roles: ['Admin', 'Officer', 'Investigator'] },
         { id: 'blockchain', label: 'Blockchain Transactions', icon: Database, roles: ['Admin', 'Officer'] },
         { id: 'cases', label: 'Case Management', icon: Briefcase, roles: ['Admin', 'Officer', 'Investigator'] },
+        { id: 'inbox', label: 'Custody Inbox', icon: Inbox, roles: ['Admin', 'Officer', 'Investigator'] },
         { id: 'logs', label: 'System Logs', icon: FileText, roles: ['Admin'] },
         { id: 'settings', label: 'Settings', icon: Settings, roles: ['Admin'] },
     ];

@@ -8,6 +8,10 @@ import DashboardOverview from '../components/DashboardOverview';
 import UploadEvidence from '../components/UploadEvidence';
 import VerifyEvidence from '../components/VerifyEvidence';
 import EvidenceList from '../components/EvidenceList';
+import CaseManagement from '../components/CaseManagement';
+import SystemLogs from '../components/SystemLogs';
+import Settings from '../components/Settings';
+import CustodyInbox from '../components/CustodyInbox';
 
 export default function Dashboard() {
     const { user } = useAuth();
@@ -91,21 +95,10 @@ export default function Dashboard() {
                         {activeTab === 'blockchain' && isAdminOrOfficer && <EvidenceList />}
 
                         {/* Placeholder Views */}
-                        {activeTab === 'cases' && (
-                            <div className="glass-panel" style={{ padding: '40px', textAlign: 'center', color: 'var(--text-secondary)' }}>
-                                Case Management System (Pending Integration)
-                            </div>
-                        )}
-                        {activeTab === 'logs' && user?.role === 'Admin' && (
-                            <div className="glass-panel" style={{ padding: '40px', textAlign: 'center', color: 'var(--text-secondary)' }}>
-                                System Logs Viewer (Admin Only)
-                            </div>
-                        )}
-                        {activeTab === 'settings' && user?.role === 'Admin' && (
-                            <div className="glass-panel" style={{ padding: '40px', textAlign: 'center', color: 'var(--text-secondary)' }}>
-                                System Configuration Panel (Admin Only)
-                            </div>
-                        )}
+                        {activeTab === 'cases' && <CaseManagement />}
+                        {activeTab === 'inbox' && <CustodyInbox />}
+                        {activeTab === 'logs' && user?.role === 'Admin' && <SystemLogs />}
+                        {activeTab === 'settings' && user?.role === 'Admin' && <Settings />}
                     </motion.main>
                 </AnimatePresence>
             </motion.div>

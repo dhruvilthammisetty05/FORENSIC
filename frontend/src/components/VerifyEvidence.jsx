@@ -118,6 +118,7 @@ export default function VerifyEvidence() {
     const [evidenceId, setEvidenceId] = useState('');
     const [verifying, setVerifying] = useState(false);
     const [result, setResult] = useState(null);
+    const [stepLogs, setStepLogs] = useState([]);
 
     const handleVerify = async (e) => {
         e.preventDefault();
@@ -128,8 +129,22 @@ export default function VerifyEvidence() {
 
         setVerifying(true);
         setResult(null);
+        setStepLogs([]);
+
+        const steps = [
+            `[CONNECTING] Establishing secure link to Evidence Database...`,
+            `[FETCHING] Retrieving immutable record #${evidenceId} from Ganache...`,
+            `[COMPUTING] Recalculating cryptographic file signatures...`,
+            `[VERIFYING] Comparing SHA-256 Hashes against Blockchain constraints...`
+        ];
 
         try {
+            // Fake animation delay for dramatic UX
+            for (let i = 0; i < steps.length; i++) {
+                setStepLogs(prev => [...prev, steps[i]]);
+                await new Promise(r => setTimeout(r, 600)); // 600ms delay per step
+            }
+
             const { data } = await api.get(`/evidence/verify/${evidenceId}`);
             setResult(data);
             if (data.status === 'VALID') {
@@ -138,7 +153,7 @@ export default function VerifyEvidence() {
                 toast.error('Evidence Compromised!');
             }
         } catch (err) {
-            toast.error(err.response?.data?.message || 'Verification failed');
+            setStepLogs(prev => [...prev, `[ERROR] Connection or Verification failed.`]);
             setResult({ status: 'ERROR', message: err.response?.data?.message || 'Verification failed' });
         } finally {
             setVerifying(false);
@@ -197,8 +212,25 @@ export default function VerifyEvidence() {
                 </div>
             </form>
 
+            {stepLogs.length > 0 && (
+                <div style={{ marginBottom: '24px', padding: '16px', background: 'rgba(0,0,0,0.3)', borderRadius: '8px', fontFamily: 'monospace', fontSize: '12px', color: 'var(--text-secondary)' }}>
+                    <AnimatePresence>
+                        {stepLogs.map((log, index) => (
+                            <motion.div 
+                                key={index} 
+                                initial={{ opacity: 0, x: -10 }} 
+                                animate={{ opacity: 1, x: 0 }} 
+                                style={{ marginBottom: '8px' }}
+                            >
+                                {log}
+                            </motion.div>
+                        ))}
+                    </AnimatePresence>
+                </div>
+            )}
+
             <AnimatePresence mode="wait">
-                {result && (
+                {result && !verifying && (
                     <motion.div key="result-container" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
                         {result.status === 'VALID' ? (
                             <SuccessAlert message={result.message} />

@@ -4,7 +4,7 @@ services:
     image: trufflesuite/ganache:latest
     ports:
       - "8545:8545"
-    command: [ "--wallet.mnemonic", "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat", "--networkId", "5777", "--host", "0.0.0.0" ]
+    command: [ "--wallet.mnemonic", "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat", "--networkId", "5777", "--host", "0.0.0.0", "--db", "/app/ganache_data" ]
     volumes:
       - ganache_data:/app/ganache_data
     networks:
@@ -25,9 +25,16 @@ services:
   mongo:
     image: mongo:6-jammy
     ports:
-      - "27017:27017"
+      - "27018:27017"
     volumes:
       - mongo_data:/data/db
+    networks:
+      - forensic-net
+
+  clamav:
+    image: clamav/clamav:stable_base
+    ports:
+      - "3310:3310"
     networks:
       - forensic-net
 

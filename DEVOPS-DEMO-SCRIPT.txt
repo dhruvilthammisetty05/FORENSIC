@@ -1,0 +1,32 @@
+========== DEVOPS DEMONSTRATION SCRIPT ==========
+Use these exact commands during your presentation to secure the full 5/5 marks for Part 1.
+
+[ 1. GITHUB DEMONSTRATION ]
+Open your terminal in the forensic-chain-system folder and paste:
+  git init
+  git add .
+  git commit -m "Enterprise Forensic Chain Release v1.0"
+  --> Show your professor the local commits and the .gitignore file protecting your secrets.
+
+[ 2. DOCKER DEMONSTRATION ]
+To show the massive microservices architecture:
+  docker compose down
+  docker compose up -d --build
+  docker ps
+  --> Point out the 5 running containers (React, Node, Mongo, IPFS, Ganache, ClamAV).
+
+[ 3. EXTRA MILE: NGROK (Public HTTPS) ]
+To get the 2 extra marks for HTTPS and Cloud proxying, you will run Ngrok to make your local React app available on the public internet.
+1. Download ngrok (ngrok.com)
+2. In a new terminal, type:
+   ngrok http 3001
+3. --> Show the professor the green "Forwarding  https://xxxx-xxxx.ngrok.io -> localhost:3001" link. 
+4. Open that link on your phone to prove it is live on the internet!
+
+[ 4. JENKINS DEMONSTRATION ]
+Show them the `Jenkinsfile` in your code! It has advanced stages:
+- Checkout
+- Install Dependencies
+- Security Vulnerability Scan (NPM Audit)
+- Build Docker Containers
+- Blockchain & Anti-Virus Verification

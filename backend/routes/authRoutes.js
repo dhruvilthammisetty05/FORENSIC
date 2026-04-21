@@ -3,6 +3,7 @@ const router = express.Router();
 const User = require('../models/User');
 const generateToken = require('../utils/generateToken');
 const { protect } = require('../middleware/authMiddleware');
+const Log = require('../models/Log');
 
 router.post('/register', async (req, res) => {
     try {
@@ -16,6 +17,7 @@ router.post('/register', async (req, res) => {
         const user = await User.create({ name, email, password, role });
         if (user) {
             console.log("User created successfully:", user._id);
+            await Log.create({ action: 'USER_REGISTERED', level: 'INFO', details: `New user registered: ${email}`, user: user._id });
             generateToken(res, user._id);
             res.status(201).json({ _id: user._id, name: user.name, email: user.email, role: user.role });
         } else {
@@ -33,6 +35,7 @@ router.post('/login', async (req, res) => {
         const { email, password } = req.body;
         const user = await User.findOne({ email });
         if (user && (await user.matchPassword(password))) {
+            await Log.create({ action: 'USER_LOGIN', level: 'INFO', details: `User logged in`, user: user._id });
             generateToken(res, user._id);
             res.status(200).json({ _id: user._id, name: user.name, email: user.email, role: user.role });
         } else {

@@ -15,18 +15,7 @@ const GoogleIcon = () => (
     </svg>
 );
 
-const FacebookIcon = () => (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M22.67 22.67H1.33V1.33h21.34v21.34z" fill="#3B5998" />
-        <path d="M16 11.75h-2.42v8.52h-3.55v-8.52H8.62V8.62h1.41V6.5c0-1.97.94-3.16 3.16-3.16h2.37v3.08h-1.5c-1.12 0-1.25.42-1.25 1.18v1.02h2.84l-.65 3.13z" fill="#fff" />
-    </svg>
-);
-
-const AppleIcon = () => (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M16.63 12.87c.02 2.76 2.37 3.66 2.41 3.68-.02.05-.37 1.28-1.24 2.54-.75 1.09-1.55 2.18-2.76 2.21-1.18.02-1.58-.7-2.93-.7-1.35 0-1.78.68-2.91.73-1.18.04-2.1-.98-2.88-2.09-1.6-2.3-2.83-6.52-1.19-9.36.81-1.39 2.25-2.28 3.8-2.3 1.14-.02 2.22.77 2.93.77.7 0 2.01-.94 3.39-.8 1.43.05 2.73.69 3.51 1.83-2.96 1.74-2.51 5.96.87 7.49zm-.65-8.91c.62-.77 1.04-1.84.92-2.96-1.01.04-2.1.66-2.75 1.45-.58.69-1.08 1.77-.94 2.87 1.14.09 2.14-.59 2.77-1.36z" fill="#fff" />
-    </svg>
-);
+// Removed FB and Apple Icons
 
 export default function Login() {
     const [email, setEmail] = useState('');
@@ -79,22 +68,10 @@ export default function Login() {
     });
 
     const handleGoogleClick = () => {
-        // Fallback for demo when no valid client ID is present
-        if (!import.meta.env.VITE_GOOGLE_CLIENT_ID || import.meta.env.VITE_GOOGLE_CLIENT_ID === 'demo-client-id') {
-            const mockPayload = {
-                email: 'system.admin@gov.com',
-                name: 'Administrator',
-                sub: 'admin-demo-' + Date.now()
-            };
-            const mockCredential = "mock." + btoa(JSON.stringify(mockPayload)) + ".mock";
-            return handleGoogleSuccess({ credential: mockCredential });
-        }
         loginWithGoogle();
     };
 
-    const handleSocialLogin = (provider) => {
-        toast.info(`${provider} login not configured for demo.`);
-    };
+// Removed handleSocialLogin
 
     return (
         <div className="auth-page-container">
@@ -162,12 +139,6 @@ export default function Login() {
                     <div className="social-buttons">
                         <button type="button" className="social-btn" onClick={handleGoogleClick}>
                             <GoogleIcon /> Login With Google
-                        </button>
-                        <button type="button" className="social-btn" onClick={() => handleSocialLogin('Facebook')}>
-                            <FacebookIcon /> Login With Facebook
-                        </button>
-                        <button type="button" className="social-btn" onClick={() => handleSocialLogin('Apple')}>
-                            <AppleIcon /> Login With Apple ID
                         </button>
                     </div>
                 </form>

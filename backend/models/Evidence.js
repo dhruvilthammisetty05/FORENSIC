@@ -30,7 +30,22 @@ const evidenceSchema = new mongoose.Schema({
         type: Number,
         required: true,
         unique: true
-    }
+    },
+    custodyHistory: [{
+        handlerId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+        handlerName: String,
+        action: String,
+        timestamp: { type: Date, default: Date.now },
+        notes: String
+    }],
+    pendingTransfers: [{
+        fromId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+        toId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+        toEmail: String,
+        status: { type: String, enum: ['Pending', 'Approved', 'Rejected'], default: 'Pending' },
+        initiatedAt: { type: Date, default: Date.now },
+        notes: String
+    }]
 }, {
     timestamps: true
 });

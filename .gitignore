@@ -1,30 +1,17 @@
-# Node
 node_modules/
+.env
+.DS_Store
+build/
+dist/
+coverage/
 npm-debug.log
 yarn-error.log
+package-lock.json
 
-# Build
-dist/
-build/
+# Blockchain
+build/contracts/
+#.env for keys
+blockchain/.env
 
-# Environment Variables
-.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-
-# IDEs
-.idea/
-.vscode/
-*.swp
-*.swo
-
-# Docker
-docker-compose.override.yml
-
-# MacOS
-.DS_Store
-
-# Truffle
-blockchain/build
+# Local DB
+mongo_data/

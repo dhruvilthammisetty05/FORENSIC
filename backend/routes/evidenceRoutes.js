@@ -6,10 +6,28 @@ const { protect, authorize } = require('../middleware/authMiddleware');
 const ipfs = require('../config/ipfs');
 const { getWeb3, getContract } = require('../config/web3');
 const Evidence = require('../models/Evidence');
+const Log = require('../models/Log');
+const User = require('../models/User');
 
 const upload = multer({
     storage: multer.memoryStorage(),
     limits: { fileSize: 50 * 1024 * 1024 } // 50MB
+});
+
+const NodeClam = require('clamscan');
+let clamscan = null;
+new NodeClam().init({
+    clamdscan: {
+        host: 'clamav',
+        port: 3310,
+        timeout: 60000,
+        local_fallback: false,
+    }
+}).then(cs => {
+    clamscan = cs;
+    console.log("ClamAV virus scanner connection established.");
+}).catch(err => {
+    console.error("ClamAV initialization failed: ", err);
 });
 
 // @desc    Upload evidence
@@ -29,6 +47,19 @@ router.post('/upload', protect, authorize('Investigator', 'Officer', 'Admin'), u
 
         if (!web3 || !contract) {
             return res.status(503).json({ message: 'Blockchain network unavailable. Contract not loaded.' });
+        }
+
+        // 0. Perform automated ClamAV Virus Scan
+        if (clamscan) {
+            try {
+                const { is_infected, viruses } = await clamscan.scanBuffer(file.buffer);
+                if (is_infected) {
+                    await Log.create({ action: 'EVIDENCE_VIRUS_DETECTED', level: 'CRITICAL', details: `Malware detected in upload attempt to Case ${caseId}. Viruses: ${viruses.join(', ')}`, user: req.user._id });
+                    return res.status(403).json({ message: 'UPLOAD REJECTED: Security system detected malicious signature in file.' });
+                }
+            } catch (scanErr) {
+                console.error("Clam scan error:", scanErr);
+            }
         }
 
         // 1. Compute SHA256 hash
@@ -61,6 +92,8 @@ router.post('/upload', protect, authorize('Investigator', 'Officer', 'Admin'), u
             txHash,
             evidenceId
         });
+
+        await Log.create({ action: 'EVIDENCE_UPLOAD', level: 'INFO', details: `Evidence ${evidence.evidenceId} uploaded to Case ${caseId}`, user: req.user._id });
 
         res.status(201).json({
             message: 'Evidence successfully uploaded',
@@ -153,6 +186,104 @@ router.get('/stats', protect, async (req, res) => {
             tamperedAlerts: 0,
             recentActivity: recentTimeline
         });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
+// @desc    Initiate Custody Transfer (Multi-Sig Part 1)
+// @route   POST /api/evidence/:id/transfer/initiate
+// @access  Private
+router.post('/:id/transfer/initiate', protect, async (req, res) => {
+    try {
+        const evidence = await Evidence.findOne({ evidenceId: parseInt(req.params.id) });
+        if (!evidence) return res.status(404).json({ message: 'Evidence not found' });
+
+        const { toEmail, notes } = req.body;
+        const targetUser = await User.findOne({ email: toEmail });
+        
+        if (!targetUser) return res.status(404).json({ message: 'Target user email not found' });
+
+        evidence.pendingTransfers.push({
+            fromId: req.user._id,
+            toId: targetUser._id,
+            toEmail,
+            notes,
+            status: 'Pending'
+        });
+
+        await evidence.save();
+        await Log.create({ action: 'CUSTODY_TRANSFER_INITIATED', level: 'INFO', details: `Transfer initiated for Evidence ${evidence.evidenceId} to ${toEmail}`, user: req.user._id });
+
+        res.status(200).json({ message: 'Custody transfer initiated and waiting for approval.' });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
+// @desc    Approve Custody Transfer (Multi-Sig Part 2)
+// @route   POST /api/evidence/:id/transfer/approve
+// @access  Private
+router.post('/:id/transfer/approve', protect, async (req, res) => {
+    try {
+        const evidence = await Evidence.findOne({ evidenceId: parseInt(req.params.id) });
+        if (!evidence) return res.status(404).json({ message: 'Evidence not found' });
+
+        // Find pending transfer where the current logged in user is the target
+        const pendingIndex = evidence.pendingTransfers.findIndex(t => t.toId.toString() === req.user._id.toString() && t.status === 'Pending');
+        
+        if (pendingIndex === -1) {
+            return res.status(400).json({ message: 'No pending transfers found for your account on this evidence.' });
+        }
+
+        // Approve it!
+        evidence.pendingTransfers[pendingIndex].status = 'Approved';
+        
+        // Log to official custody history
+        evidence.custodyHistory.push({
+            handlerId: req.user._id,
+            handlerName: req.user.name,
+            action: 'ASSUMED_CUSTODY',
+            notes: evidence.pendingTransfers[pendingIndex].notes
+        });
+
+        await evidence.save();
+        await Log.create({ action: 'CUSTODY_TRANSFER_APPROVED', level: 'INFO', details: `${req.user.name} assumed custody of Evidence ${evidence.evidenceId}`, user: req.user._id });
+
+        res.status(200).json({ message: 'Transfer formally approved. You are now the official custodian.' });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
+// @desc    Get user's pending incoming custody transfers
+// @route   GET /api/evidence/pending-transfers
+// @access  Private
+router.get('/pending-transfers/me', protect, async (req, res) => {
+    try {
+        const evidenceWithTransfers = await Evidence.find({
+            "pendingTransfers.toId": req.user._id,
+            "pendingTransfers.status": "Pending"
+        }).populate('pendingTransfers.fromId', 'name email');
+
+        // Filter and map to send only the user's pending transfers
+        const myPending = [];
+        evidenceWithTransfers.forEach(ev => {
+            ev.pendingTransfers.forEach(t => {
+                if (t.toId.toString() === req.user._id.toString() && t.status === 'Pending') {
+                    myPending.push({
+                        evidenceId: ev.evidenceId,
+                        caseId: ev.caseId,
+                        fromName: t.fromId.name,
+                        fromEmail: t.fromId.email,
+                        initiatedAt: t.initiatedAt,
+                        notes: t.notes
+                    });
+                }
+            });
+        });
+
+        res.status(200).json(myPending);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

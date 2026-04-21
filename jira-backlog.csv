@@ -1,0 +1,13 @@
+Issue Type,Summary,Description,Priority,Epic Name
+Epic,Architect Blockchain Backbone,Setup Truffle, Ganache, and Evidence Smart Contracts for immutable ledger.,High,
+Epic,Develop UI Dashboard,Build React frontend with authentication, tables, and verification screens.,High,
+Epic,Backend Security & Middlewares,Implement IPFS integration, ClamAV virus scanning, and Multi-sig transfer APIs.,High,
+Story,Setup Ganache Docker,Spin up local ethereum node using truffle-config for local development.,High,Architect Blockchain Backbone
+Story,Write Evidence Contract,Develop storeEvidence and getEvidence signatures in solidity.,High,Architect Blockchain Backbone
+Story,Implement Google OAuth,Restrict frontend access to only valid Google Accounts.,Medium,Develop UI Dashboard
+Story,Build PDF Exporter,Clicking 'Export Report' outputs a court-ready cryptographic PDF using jsPDF.,Low,Develop UI Dashboard
+Story,Integrate IPFS Client,Connect backend route to IPFS to distribute evidence files and retrieve CIDs.,High,Backend Security & Middlewares
+Story,ClamAV Pre-scan Pipeline,Intercept file buffer from frontend and pipe to NodeClam for virus scanning before hashing.,Medium,Backend Security & Middlewares
+Story,Multi-Signature Custody System,Require two cryptographic approvals for transfer of evidence physical custody.,High,Backend Security & Middlewares
+Task,Refactor Navigation Sidebar,Use Lucide-react icons and active tab states.,Low,Develop UI Dashboard
+Task,Fix Sepolia Deployment Config,Add hdwallet-provider and Alchemy URL to config.,High,Architect Blockchain Backbone
