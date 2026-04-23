@@ -111,7 +111,7 @@ export default function DashboardOverview() {
                         Evidence Activity Timeline
                     </h3>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                        {stats.recentActivity.length === 0 ? (
+                        {(!stats.recentActivity || stats.recentActivity.length === 0) ? (
                             <div style={{ color: 'var(--text-secondary)' }}>No recent activity found.</div>
                         ) : stats.recentActivity.map((ev, idx) => (
                             <motion.div
